@@ -11,6 +11,7 @@ export class PersonalInfo extends React.Component {
     this.ChangeState = this.ChangeState.bind(this);
     this.EditDisplayName = this.EditDisplayName.bind(this);
     this.DisplayOrEdit = this.DisplayOrEdit.bind(this);
+    this.DisplayLinks = this.DisplayLinks.bind(this);
   }
 
   ChangeState(e){
@@ -44,8 +45,19 @@ export class PersonalInfo extends React.Component {
           <span>{data.lastName}</span>
         </div>
         <div className="email">{data.email}</div>
+        <div><this.DisplayLinks linksObj={data.links}/></div>
         <span data-edit = "displayNameEdit" className="edit" onClick={e => this.ChangeState(e)}>✎</span>
       </div>
+    )
+  }
+
+  DisplayLinks({ linksObj }){
+    return(
+      <ul>
+        {Object.values(linksObj).map(value=>{
+          return <li>{value}</li>
+        })}  
+      </ul>
     )
   }
 
