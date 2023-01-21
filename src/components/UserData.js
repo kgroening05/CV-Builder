@@ -5,6 +5,7 @@ export let UserData = {
     email: 'john.doe@email.com',
     links: {
       link1: 'github.com/johndoe',
+      link2: 'linkedin.com'
     },
   },
   education: {
