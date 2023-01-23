@@ -1,101 +1,81 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserData } from './UserData';
 
-export class PersonalInfo extends React.Component {
-  constructor() {
-    super()
-    this.state = {
-      displayNameEdit: false,
-    }
-    this.DisplayName = this.DisplayName.bind(this);
-    this.ChangeState = this.ChangeState.bind(this);
-    this.EditDisplayName = this.EditDisplayName.bind(this);
-    this.DisplayOrEdit = this.DisplayOrEdit.bind(this);
-    this.DisplayLinks = this.DisplayLinks.bind(this);
-  }
+export function PersonalInfo(){
+  const [editing, setEditing] = useState(false);
 
-  ChangeState(e){
-    const target = e.target.dataset.edit
-    this.setState({
-      [target]: !this.state[target]
-    })
-  }
-
-  FormCancelBtn(e){
-    e.preventDefault()
-    this.ChangeState(e)
-  }
-
-  FormSubmit(e, data){
-    e.preventDefault()
-    const first = e.target.firstName.value
-    const last = e.target.lastName.value    
-    const email = e.target.email.value
-    data.firstName = first
-    data.lastName = last
-    data.email = email
-    this.ChangeState(e)
-  }
-
-  DisplayName({ data }) {
-    return (
-      <div>
-        <div className="name">
-          <span>{data.firstName} </span>
-          <span>{data.lastName}</span>
-        </div>
-        <div className="email">{data.email}</div>
-        <div><this.DisplayLinks linksObj={data.links}/></div>
-        <span data-edit = "displayNameEdit" className="edit" onClick={e => this.ChangeState(e)}>✎</span>
-      </div>
-    )
-  }
-
-  DisplayLinks({ linksObj }){
-    return(
-      <ul>
-        {Object.values(linksObj).map(value=>{
-          return <li>{value}</li>
-        })}  
-      </ul>
-    )
-  }
-
-  EditDisplayName({ data }){
-    return (
-      <div>
-        <form onSubmit={e=> this.FormSubmit(e, data)} data-edit = "displayNameEdit">
-          <div>
-            <label htmlFor="firstName">First: </label>
-            <input name='firstName' type="text" defaultValue={data.firstName} autoFocus/>
-          </div>
-          <div>
-            <label htmlFor="lastName">Last: </label>
-            <input name='lastName' type="text" defaultValue={data.lastName}/>
-          </div>
-          <div>
-            <label htmlFor="email">Email: </label>
-            <input name='email' type="email" defaultValue={data.email}/>
-          </div>
-          <button data-edit = "displayNameEdit" type="submit">Submit</button>
-          <button data-edit = "displayNameEdit" onClick={e=>this.FormCancelBtn(e)}>Cancel</button>
-
-        </form>
-      </div>
-    )
-  }
-
-  DisplayOrEdit(){
-    if(this.state.displayNameEdit){
-      return <this.EditDisplayName data = {UserData.personalInfo}/>
+    if(editing){
+      return(<EditPeronalInfo personalInfo={ UserData.personalInfo } setStateFn={ setEditing } />)
     } else {
-      return <this.DisplayName data = {UserData.personalInfo}/>
+      return (<DisplayPeronalInfo personalInfo={ UserData.personalInfo } setStateFn={ setEditing } />)
     }
-  }
+}
 
-  render() {
-    return (
-      <this.DisplayOrEdit />
-    )
-  }
+function DisplayPeronalInfo({ personalInfo, setStateFn }){
+
+  return (
+    <>
+      <p className='user-name'>
+        <span>{personalInfo.firstName}</span>
+        <span> {personalInfo.lastName}</span>
+      </p>
+      <div>{personalInfo.email}</div>
+      <PopulatePersonalWebsites linksArray = {personalInfo.links} />
+      <EditButton setStateFn={ setStateFn }/>
+    </>
+  )
+}
+
+function EditPeronalInfo({ personalInfo, setStateFn }){
+
+  return (
+    <form onSubmit={e => HandleEdit(e, setStateFn, personalInfo)}>
+      <div>
+        <label htmlFor="firstName">First Name: </label>
+        <input type="text" name='firstName' defaultValue={personalInfo.firstName} autoFocus/>
+      </div>
+      <div>
+        <label htmlFor="lastName">Last Name: </label>
+        <input type="text" name='lastName' defaultValue={personalInfo.lastName} />
+      </div>
+      <div>
+        <label htmlFor="email">Email: </label>
+        <input type="email" name='email' defaultValue={personalInfo.email} />
+      </div>
+      <button type="submit">Save</button>
+      <button onClick={(e)=>HandleCancel(e, setStateFn)}>Cancel</button>
+    </form>
+  )
+}
+
+function HandleEdit(e, setStateFn, personalInfo){
+  e.preventDefault()
+  personalInfo.firstName = e.target.firstName.value
+  personalInfo.lastName = e.target.lastName.value
+  personalInfo.email = e.target.email.value
+  setStateFn(previous => !previous)
+}
+
+function HandleCancel(e, setStateFn){
+  e.preventDefault()
+  console.log('handled cancel')
+  setStateFn(previous => !previous)
+}
+
+function PopulatePersonalWebsites({ linksArray }){
+  return (
+    <ul>
+      {linksArray.map((link, index)=>{
+        return (
+          <li key={index}>{link}</li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function EditButton({ setStateFn }){
+  return (
+    <i className='edit-icon' onClick={()=>setStateFn(previous => !previous)}>✎</i>
+  )
 }
